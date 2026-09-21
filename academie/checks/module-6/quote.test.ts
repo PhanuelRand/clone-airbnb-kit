@@ -1,7 +1,7 @@
 /**
  * Module 5 — Calendrier, règles de l'hôte et prix d'un séjour.
  *
- * Contrat attendu, exporté par `src/academie/module-5.ts` :
+ * Contrat attendu, exporté par `src/academie/module-6.ts` :
  *
  *   export function createListing(input: {
  *     hostId: string; nightlyCents: number; currency: string
@@ -47,7 +47,7 @@ import {
   quoteStay,
   setHostRules,
   setSeasonalRate,
-} from '../../../src/academie/module-5'
+} from '../../../src/academie/module-6'
 
 const hostId = '55555555-5555-4555-8555-555555555555'
 const today = '2026-06-01'

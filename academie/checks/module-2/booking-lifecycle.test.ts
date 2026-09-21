@@ -5,7 +5,7 @@
  * l'adaptateur du module. Ces fichiers font partie du harnais : les modifier
  * confie votre remise à un mentor.
  *
- * Contrat attendu, exporté par `src/academie/module-1.ts` :
+ * Contrat attendu, exporté par `src/academie/module-2.ts` :
  *
  *   export type BookingStatus =
  *     'REQUESTED' | 'CONFIRMED' | 'CHECKED_IN'
@@ -28,10 +28,10 @@
  *
  * La convention de dates est la même dans tout le parcours : l'intervalle est
  * semi-ouvert. Un séjour du 1er au 4 mars compte trois nuits, et un séjour qui
- * commence le 4 ne chevauche pas le précédent. Le module 6 en dépend.
+ * commence le 4 ne chevauche pas le précédent. Le module 7 en dépend.
  */
 import { describe, expect, it } from 'vitest'
-import { Booking } from '../../../src/academie/module-1'
+import { Booking } from '../../../src/academie/module-2'
 
 const guestId = '11111111-1111-4111-8111-111111111111'
 const listingId = '22222222-2222-4222-8222-222222222222'
@@ -83,7 +83,7 @@ describe('cycle de vie d’une réservation', () => {
   })
 
   // Refuser est une réponse de l'hôte à une demande : une fois confirmée, la
-  // sortie s'appelle une annulation, et le module 7 lui applique une politique.
+  // sortie s'appelle une annulation, et le module 8 lui applique une politique.
   it('refuse de décliner une réservation déjà confirmée', () => {
     const booking = requested()
     booking.transitionTo('CONFIRMED' as never)

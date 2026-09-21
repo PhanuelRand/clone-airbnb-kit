@@ -7,7 +7,7 @@
  * attendue est une contrainte d'exclusion sur un `daterange`, avec l'extension
  * `btree_gist` pour joindre l'identifiant du logement à l'intervalle.
  *
- * Contrat attendu, exporté par `src/academie/module-6.ts` :
+ * Contrat attendu, exporté par `src/academie/module-7.ts` :
  *
  *   export function createListing(input: { hostId: string }): Promise<string>
  *
@@ -31,7 +31,7 @@ import {
   createListing,
   listBookings,
   requestBooking,
-} from '../../../src/academie/module-6'
+} from '../../../src/academie/module-7'
 
 const hostId = '66666666-6666-4666-8666-666666666666'
 const guestId = '77777777-7777-4777-8777-777777777777'

@@ -1,6 +1,6 @@
 # Les cours du parcours
 
-Un fichier par module : `module-1.md` à `module-8.md`.
+Un fichier par module : `module-1.md` à `module-9.md`.
 
 C'est ici que le parcours **enseigne**. La consigne du portail dit ce qu'il faut
 produire et à quoi ça sera mesuré; le cours explique comment y arriver.
@@ -37,17 +37,14 @@ progression qui amène quelqu'un de bloqué jusqu'au code qui passe.
 
 ### L'exception du module 1
 
-Le module 1 porte deux sections supplémentaires, placées juste après « Ce que
-vous allez construire » :
+Le module 1 ne suit pas ce plan : il n'enseigne aucune technique. Il amène le
+participant d'une machine vide jusqu'à une première vérification verte, et
+porte donc ses propres sections — installation des outils, création du dépôt
+depuis le modèle, premier fichier adaptateur, lecture d'un échec.
 
-- **Avant de commencer.** Ce qu'il faut installer, et comment aligner son
-  `DATABASE_URL` local sur celui de l'intégration continue.
-- **Comment le harnais vous parle.** L'adaptateur, et surtout **la lecture d'un
-  échec** : les sorties rouges que le participant verra, et ce qu'elles
-  signifient.
-
-Elles n'apparaissent qu'une fois, dans le premier module du parcours. Les autres
-cours y renvoient au lieu de les répéter.
+Tout cela se trouvait auparavant dans le module de modélisation, qui devenait
+de loin le plus long et le plus décourageant du parcours. Les autres cours
+renvoient au module 1 au lieu de répéter ces explications.
 
 ### Ce que chaque section doit contenir
 
@@ -127,5 +124,4 @@ Relire pour ça.
 - Tout bloc de code est étiqueté par son langage et doit s'exécuter tel quel.
 - Les liens de la section « Pour aller plus loin » sont en français quand une
   version française existe, et signalés comme anglais sinon.
-- Un cours qui dépasse trois cents lignes est probablement deux cours. Le
-  module 1 fait exception : il porte l'accueil du parcours.
+- Un cours qui dépasse trois cents lignes est probablement deux cours.

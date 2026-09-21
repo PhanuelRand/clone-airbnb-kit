@@ -1,4 +1,4 @@
-# Module 1 — Fondations et modèle du domaine
+# Module 2 — Fondations et modèle du domaine
 
 Ce cours se suffit à lui-même : tout ce dont vous avez besoin pour terminer le
 module est ici, y compris les outils à installer et les commandes à lancer.
@@ -28,7 +28,7 @@ réservation qui connaît ses propres règles.
 ```
 
 Prenez ce module au sérieux même s'il paraît administratif. Une machine à états
-bâclée ici se paie au module 6, quand vous chercherez pourquoi une réservation
+bâclée ici se paie au module 7, quand vous chercherez pourquoi une réservation
 annulée bloque encore des dates.
 
 ## Avant de commencer
@@ -67,7 +67,7 @@ createdb stays_test    # ou : psql -c "CREATE DATABASE stays_test"
 Dernier point, et il compte si votre connexion est lente ou facturée : le
 premier `npm install` télécharge quelques dizaines de mégaoctets, une fois pour
 toutes. Faites-le quand vous avez du réseau. Ensuite, **tout le travail de ce
-module se fait hors ligne**, y compris `npm run academie 1`.
+module se fait hors ligne**, y compris `npm run academie 2`.
 
 ### Les outils que vous devez choisir
 
@@ -165,7 +165,7 @@ Trois endroits vous disent quoi faire, et ils ne disent pas la même chose.
 |---|---|
 | La consigne, sur le portail | Ce qu'il faut produire et les critères qui le mesurent |
 | Ce cours | Comment y arriver |
-| L'en-tête des fichiers de `academie/checks/module-1/` | Les **signatures exactes** attendues |
+| L'en-tête des fichiers de `academie/checks/module-2/` | Les **signatures exactes** attendues |
 
 ### L'adaptateur, la pièce à comprendre tout de suite
 
@@ -175,7 +175,7 @@ importent un seul fichier par module, `src/academie/module-N.ts`, que vous
 que le harnais attend.
 
 ```ts
-// src/academie/module-1.ts
+// src/academie/module-2.ts
 export { Reservation as Booking } from '../domaine/reservation'
 export type { EtatReservation as BookingStatus } from '../domaine/reservation'
 
@@ -194,12 +194,12 @@ export const schema = {
 Le chemin complet, de la vérification jusqu'à votre code :
 
 ```text
-  academie/checks/module-1/              ← écrit par l'Académie
+  academie/checks/module-2/              ← écrit par l'Académie
       booking-lifecycle.test.ts             ne le modifiez pas
               │
               │ importe, sous des noms imposés
               ▼
-  src/academie/module-1.ts               ← VOUS l'écrivez
+  src/academie/module-2.ts               ← VOUS l'écrivez
       export { Reservation as Booking }     il ne fait que traduire
               │
               │ réexporte
@@ -220,18 +220,18 @@ portent les bonnes contraintes.
 
 ### Lire un échec
 
-Au premier `npm run academie 1`, tout est rouge. C'est l'état normal de départ,
+Au premier `npm run academie 2`, tout est rouge. C'est l'état normal de départ,
 pas un problème d'installation. Voici les trois messages que vous verrez dans
 cet ordre, et ce qu'ils signifient.
 
 **Le fichier adaptateur n'existe pas encore :**
 
 ```text
-FAIL  academie/checks/module-1/booking-lifecycle.test.ts
-Error: Failed to load url ../../../src/academie/module-1
+FAIL  academie/checks/module-2/booking-lifecycle.test.ts
+Error: Failed to load url ../../../src/academie/module-2
 ```
 
-Créez `src/academie/module-1.ts`. C'est toujours la première chose à faire dans
+Créez `src/academie/module-2.ts`. C'est toujours la première chose à faire dans
 un module.
 
 **L'adaptateur existe mais n'exporte pas ce qu'il faut :**
@@ -247,7 +247,7 @@ donne la liste exacte.
 
 ```text
 AssertionError: expected [Function] to throw an error
- ❯ academie/checks/module-1/booking-lifecycle.test.ts:72:12
+ ❯ academie/checks/module-2/booking-lifecycle.test.ts:72:12
    refuse de terminer un séjour jamais confirmé
 ```
 
@@ -260,17 +260,17 @@ quelque chose. Le nom du test dit la règle qui manque.
       écrire du code
             │
             ▼
-   npm run academie 1 ───── rouge ────► lire le message, corriger ──┐
+   npm run academie 2 ───── rouge ────► lire le message, corriger ──┐
             │                                                        │
             │ vert                                                   │
             ▼                                                        │
         git push                              ◄─────────────────────┘
             │
             ▼
-   onglet Actions du dépôt : academie/module-1 ✓
+   onglet Actions du dépôt : academie/module-2 ✓
             │
             ▼
-      module 2 déverrouillé
+      module 3 déverrouillé
 ```
 
 Restez à gauche de ce schéma le plus longtemps possible. La boucle locale prend
@@ -316,7 +316,7 @@ et de faire passer toute modification d'état par ce point unique.
 ### Le deuxième piège, silencieux
 
 Vous allez naturellement stocker deux colonnes, `arrivee` et `depart`. C'est ce
-que tout le monde fait, et rien ne vous en empêchera avant le module 6 — où vous
+que tout le monde fait, et rien ne vous en empêchera avant le module 7 — où vous
 découvrirez que PostgreSQL sait garantir qu'aucune nuit n'est vendue deux fois,
 mais seulement si les dates vivent dans **un seul intervalle** et non dans deux
 colonnes indépendantes.
@@ -368,7 +368,7 @@ Deux règles que ce schéma encode et que la vérification contrôle :
 
 - **refuser** (`DECLINED`) n'est possible que depuis `REQUESTED`. C'est la
   réponse d'un hôte à une demande. Une fois la réservation confirmée, la sortie
-  s'appelle une annulation — et le module 7 leur appliquera des règles d'argent
+  s'appelle une annulation — et le module 8 leur appliquera des règles d'argent
   différentes;
 - aucun état terminal ne se rouvre. Une réservation terminée ne repasse pas en
   cours, une annulation ne se reprend pas.
@@ -405,7 +405,7 @@ possible.
 
 `0.1 + 0.2` ne vaut pas `0.3` en virgule flottante, dans tous les langages.
 Vingt-cinq dollars s'écrit `2500`, pas `25.0`. Le jour où vous verserez de
-l'argent à un hôte au module 7, un centime d'écart sera un vrai centime, sur un
+l'argent à un hôte au module 8, un centime d'écart sera un vrai centime, sur un
 vrai relevé.
 
 En base, cela veut dire `integer` ou `bigint` — jamais `real` ni `double`, et
@@ -419,7 +419,7 @@ facteur cent.
 
 Un fichier `.sql` numéroté, ajouté et **jamais modifié une fois appliqué**. Pas
 une génération automatique à partir de votre code : quand vous déploierez au
-module 8, il faudra rejouer exactement ces fichiers, dans cet ordre, sur une
+module 9, il faudra rejouer exactement ces fichiers, dans cet ordre, sur une
 base que vous ne pouvez pas effacer.
 
 Si vous vous trompez, vous n'éditez pas la migration fautive : vous en ajoutez
@@ -524,8 +524,8 @@ psql "$DATABASE_URL" -c '\d prets'
 
 1. **Préparer la machine** : Node, PostgreSQL, la base `stays_test`, le fichier
    `.env`. Puis `npm install` dans le dépôt, et `npm install pg`.
-2. **Créer l'adaptateur vide** : `src/academie/module-1.ts`. Lancez
-   `npm run academie 1` tout de suite, pour voir le premier échec et comprendre
+2. **Créer l'adaptateur vide** : `src/academie/module-2.ts`. Lancez
+   `npm run academie 2` tout de suite, pour voir le premier échec et comprendre
    la boucle avant d'avoir du code à déboguer.
 3. **Mettre en place les migrations** : le lanceur `scripts/migrate.mjs`, le
    script `npm run migrate`, et l'exemple ci-dessus pour valider la chaîne.
@@ -539,12 +539,12 @@ psql "$DATABASE_URL" -c '\d prets'
    ceux du harnais, les vôtres.
 8. **Compléter l'adaptateur** : les deux exports et l'objet `schema` renseigné
    avec vos vrais noms de tables et de colonnes.
-9. **`npm run academie 1`**, puis pousser. La vérification `academie/module-1`
+9. **`npm run academie 2`**, puis pousser. La vérification `academie/module-2`
    doit passer au vert dans l'onglet Actions de votre dépôt.
 
 ## Les erreurs fréquentes
 
-**`Failed to load url ../../../src/academie/module-1`**
+**`Failed to load url ../../../src/academie/module-2`**
 L'adaptateur n'existe pas, ou n'est pas exactement à ce chemin. Vérifiez
 l'orthographe et l'extension `.ts`.
 
@@ -577,7 +577,7 @@ Presque toujours une base différente : l'intégration continue utilise
 
 ## Comment vous saurez que c'est fini
 
-Deux suites composent `academie/module-1`.
+Deux suites composent `academie/module-2`.
 
 `booking-lifecycle.test.ts` exécute votre code : naissance à l'état demandé,
 chemin nominal complet, refus de terminer sans confirmer, refus de rouvrir un

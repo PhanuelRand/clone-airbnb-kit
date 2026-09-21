@@ -5,7 +5,7 @@
  * versionnée, contraintes déclarées, montants en entiers. Ce sont les critères
  * c1 et c4 de la consigne.
  *
- * Contrat attendu, exporté par `src/academie/module-1.ts` :
+ * Contrat attendu, exporté par `src/academie/module-2.ts` :
  *
  *   export const schema: {
  *     migrationsDir: string          // ex. 'migrations', relatif à la racine
@@ -25,7 +25,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { schema } from '../../../src/academie/module-1'
+import { schema } from '../../../src/academie/module-2'
 
 function migrationsSql(): string {
   const dir = join(process.cwd(), schema.migrationsDir)

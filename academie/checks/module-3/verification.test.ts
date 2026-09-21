@@ -1,7 +1,7 @@
 /**
  * Module 2 — Comptes, rôles et vérification de l'hôte.
  *
- * Contrat attendu, exporté par `src/academie/module-2.ts` :
+ * Contrat attendu, exporté par `src/academie/module-3.ts` :
  *
  *   export class Host {
  *     static register(input: { email: string; name: string }): Host
@@ -29,7 +29,7 @@
  * n'est pas une autorisation.
  */
 import { describe, expect, it } from 'vitest'
-import { Host, authorize, hashPassword, verifyPassword } from '../../../src/academie/module-2'
+import { Host, authorize, hashPassword, verifyPassword } from '../../../src/academie/module-3'
 
 function registered() {
   return Host.register({ email: 'hery@example.org', name: 'Hery' })

@@ -1,7 +1,7 @@
 /**
  * Module 4 — Recherche, filtres et disponibilité.
  *
- * Contrat attendu, exporté par `src/academie/module-4.ts` :
+ * Contrat attendu, exporté par `src/academie/module-5.ts` :
  *
  *   export function publishListing(input: {
  *     hostId: string; city: string; title: string
@@ -29,7 +29,7 @@
  * résultats déjà vus.
  */
 import { describe, expect, it } from 'vitest'
-import { bookDates, publishListing, search } from '../../../src/academie/module-4'
+import { bookDates, publishListing, search } from '../../../src/academie/module-5'
 
 const hostId = '44444444-4444-4444-8444-444444444444'
 

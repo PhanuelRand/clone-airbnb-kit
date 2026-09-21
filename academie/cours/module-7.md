@@ -1,4 +1,4 @@
-# Module 6 — Réservation sans double réservation
+# Module 7 — Réservation sans double réservation
 
 ## Ce que vous allez construire
 
@@ -156,7 +156,7 @@ CREATE EXTENSION IF NOT EXISTS btree_gist;
 Sans elle, vous obtiendrez l'erreur `data type uuid has no default operator
 class for access method "gist"`. Elle est livrée avec PostgreSQL; il suffit de
 l'activer, dans une migration, et aussi sur votre base de production au
-module 8.
+module 9.
 
 ## Un exemple minimal qui tourne
 
@@ -240,11 +240,11 @@ plus d'intervalle dans lequel quelqu'un puisse se glisser.
 
 1. **Activer l'extension.** Une migration versionnée avec
    `CREATE EXTENSION IF NOT EXISTS btree_gist;`. Notez-la : il faudra la rejouer
-   sur la base de production au module 8.
+   sur la base de production au module 9.
 2. **Passer à un intervalle.** Remplacez vos deux colonnes de dates par une
    colonne `daterange`, ou ajoutez-la. Ajoutez la contrainte
    `CHECK (NOT isempty(...))` : elle reprend, côté base, l'invariant que votre
-   modèle du module 1 tient déjà côté code.
+   modèle du module 2 tient déjà côté code.
 3. **Ajouter la contrainte d'exclusion**, avec sa clause `WHERE` sur le statut,
    pour que les réservations annulées cessent de bloquer.
 4. **Réécrire la création de réservation** : plus de `SELECT` préalable. On
@@ -253,11 +253,11 @@ plus d'intervalle dans lequel quelqu'un puisse se glisser.
    qu'une nouvelle réservation sur les mêmes nuits est aussitôt acceptée.
 6. **Implémenter la lecture** des réservations d'un logement, en distinguant les
    actives des annulées.
-7. **Écrire l'adaptateur** `src/academie/module-6.ts`, qui réexporte
+7. **Écrire l'adaptateur** `src/academie/module-7.ts`, qui réexporte
    `createListing`, `requestBooking`, `cancelBooking` et `listBookings` sous les
    noms attendus. Les signatures exactes sont en tête de
-   `academie/checks/module-6/booking.test.ts`.
-8. **Lancer les vérifications** : `npm run academie 6`. Les suites des modules 1
+   `academie/checks/module-7/booking.test.ts`.
+8. **Lancer les vérifications** : `npm run academie 7`. Les suites des modules 1
    à 5 tournent aussi — une régression ailleurs bloque celle-ci.
 
 ## Les erreurs fréquentes
@@ -278,7 +278,7 @@ toutes les lignes, annulées comprises.
 **Le test des cinq demandes simultanées passe, mais vous avez ajouté une file
 d'attente en JavaScript.**
 C'est le piège du module. Un verrou dans votre processus Node fonctionne tant
-qu'il n'y a **qu'un seul processus**. Au module 8, votre hébergeur lancera
+qu'il n'y a **qu'un seul processus**. Au module 9, votre hébergeur lancera
 peut-être deux instances, chacune avec son propre verrou, chacune persuadée
 d'être seule — et le bogue revient, en production, sans qu'aucun test ne
 l'annonce. L'invariant doit vivre dans la base, qui est la seule chose que les
@@ -291,7 +291,7 @@ N'attrapez que `23P01`, et laissez tout le reste remonter.
 
 ## Comment vous saurez que c'est fini
 
-La suite `academie/checks/module-6/booking.test.ts` couvre quatre familles :
+La suite `academie/checks/module-7/booking.test.ts` couvre quatre familles :
 
 - un intervalle libre est accepté, deux logements ne s'opposent jamais, et un
   séjour adjacent est accepté;

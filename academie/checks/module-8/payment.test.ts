@@ -1,7 +1,7 @@
 /**
  * Module 7 — Paiement, versement à l'hôte et annulation.
  *
- * Contrat attendu, exporté par `src/academie/module-7.ts` :
+ * Contrat attendu, exporté par `src/academie/module-8.ts` :
  *
  *   export function capturePayment(input: {
  *     bookingId: string; amountCents: number; idempotencyKey: string
@@ -59,7 +59,7 @@ import {
   refundFor,
   releasePayout,
   signWebhook,
-} from '../../../src/academie/module-7'
+} from '../../../src/academie/module-8'
 
 function bookingId() {
   return `booking-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
