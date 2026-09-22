@@ -10,7 +10,7 @@
 import { existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
+import { dirname, join, sep } from 'node:path'
 
 const checksDir = join(dirname(fileURLToPath(import.meta.url)), 'checks')
 const target = Number(process.argv[2])
@@ -21,9 +21,11 @@ if (!Number.isInteger(target) || target < 1) {
 }
 
 // Les suites sont cumulatives : valider le module N exige les modules 1 à N.
+// Le séparateur final compte : vitest lit un chemin comme un filtre, et
+// « module-1 » sélectionnerait aussi « module-10 » à « module-14 ».
 const suites = Array.from({ length: target }, (_unused, index) => ({
   name: `module-${index + 1}`,
-  path: join(checksDir, `module-${index + 1}`),
+  path: join(checksDir, `module-${index + 1}`) + sep,
 }))
 
 // Une suite absente ne doit jamais se lire comme une réussite.

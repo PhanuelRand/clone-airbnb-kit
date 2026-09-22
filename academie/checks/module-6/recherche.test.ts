@@ -1,11 +1,12 @@
 /**
- * Module 4 — Recherche, filtres et disponibilité.
+ * Module 6 — Recherche et filtres.
  *
- * Contrat attendu, exporté par `src/academie/module-5.ts` :
+ * Contrat attendu, exporté par `src/academie/module-6.ts` :
  *
  *   export function publishListing(input: {
  *     hostId: string; city: string; title: string
  *     nightlyCents: number; capacity: number; amenities: string[]
+ *     latitude?: number; longitude?: number   // en degrés décimaux
  *   }): Promise<string>
  *
  *   export function bookDates(input: {
@@ -18,6 +19,9 @@
  *     guests?: number
  *     minCents?: number; maxCents?: number
  *     amenities?: string[]                    // toutes exigées
+ *     bounds?: {                              // la zone visible de la carte
+ *       south: number; west: number; north: number; east: number
+ *     }
  *     cursor?: string | null; limit?: number
  *   }): Promise<{
  *     items: { listingId: string; nightlyCents: number }[]
@@ -27,9 +31,15 @@
  * La pagination est par curseur, jamais par OFFSET : la consigne exige qu'une
  * annonce publiée pendant que l'on feuillette ne décale ni ne duplique les
  * résultats déjà vus.
+ *
+ * La recherche par zone rend les annonces dont la position tombe dans le
+ * rectangle visible de la carte, bords compris. Une annonce sans position n'y
+ * figure pas. Une latitude et une longitude indexées suffisent : PostGIS n'est
+ * pas nécessaire. Attention au signe : Madagascar est dans l'hémisphère sud,
+ * donc ses latitudes sont négatives et le sud est le plus petit nombre.
  */
 import { describe, expect, it } from 'vitest'
-import { bookDates, publishListing, search } from '../../../src/academie/module-5'
+import { bookDates, publishListing, search } from '../../../src/academie/module-6'
 
 const hostId = '44444444-4444-4444-8444-444444444444'
 
@@ -130,6 +140,41 @@ describe('disponibilité dans la recherche', () => {
 
     const result = await search({ city, checkIn: '2026-07-15', checkOut: '2026-07-18' })
     expect(result.items.map((item) => item.listingId)).toEqual([booked])
+  })
+})
+
+describe('recherche dans la zone de la carte', () => {
+  // Autour d'Antananarivo, et Toamasina hors du cadre.
+  const tana = { latitude: -18.9137, longitude: 47.5361 }
+  const toamasina = { latitude: -18.1492, longitude: 49.4023 }
+  const bounds = { south: -19.1, west: 47.3, north: -18.7, east: 47.7 }
+
+  it('ne rend que les annonces situées dans le rectangle visible', async () => {
+    const city = uniqueCity('carte')
+    const inside = await publish(city, tana)
+    await publish(city, toamasina)
+    await publish(city)
+
+    const result = await search({ city, bounds })
+    expect(result.items.map((item) => item.listingId)).toEqual([inside])
+  })
+
+  it('compte une annonce posée sur le bord du rectangle', async () => {
+    const city = uniqueCity('bord')
+    const onEdge = await publish(city, { latitude: bounds.south, longitude: bounds.east })
+
+    const result = await search({ city, bounds })
+    expect(result.items.map((item) => item.listingId)).toEqual([onEdge])
+  })
+
+  it('combine la zone avec les autres filtres', async () => {
+    const city = uniqueCity('zone-et-capacite')
+    const large = await publish(city, { ...tana, capacity: 6 })
+    await publish(city, { ...tana, capacity: 2 })
+    await publish(city, { ...toamasina, capacity: 6 })
+
+    const result = await search({ city, bounds, guests: 5 })
+    expect(result.items.map((item) => item.listingId)).toEqual([large])
   })
 })
 

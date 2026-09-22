@@ -1,7 +1,7 @@
 /**
- * Module 2 — Comptes, rôles et vérification de l'hôte.
+ * Module 4 — Authentification et vérification de l’hôte.
  *
- * Contrat attendu, exporté par `src/academie/module-3.ts` :
+ * Contrat attendu, exporté par `src/academie/module-4.ts` :
  *
  *   export class Host {
  *     static register(input: { email: string; name: string }): Host
@@ -15,21 +15,25 @@
  *   export function hashPassword(plain: string): Promise<string>
  *   export function verifyPassword(plain: string, hash: string): Promise<boolean>
  *
- *   export type Role = 'ANONYMOUS' | 'GUEST' | 'HOST'
+ *   export type Role = 'GUEST' | 'HOST'
  *   export type Action = 'PUBLISH_LISTING' | 'EDIT_LISTING' | 'REQUEST_BOOKING'
  *
  *   export function authorize(input: {
- *     role: Role
+ *     roles: Role[]            // [] pour un visiteur non connecté
  *     hostVerification?: 'PENDING' | 'APPROVED' | 'REJECTED'
  *     action: Action
  *   }): { allowed: boolean; status: number }
+ *
+ * Un même compte peut porter les deux rôles : il réserve comme voyageur et
+ * publie comme hôte. Chaque action se décide sur le rôle qu'elle demande, et
+ * la vérification de l'hôte ne concerne que les actions d'hôte.
  *
  * `authorize` est la décision d'autorisation de votre serveur, isolée pour être
  * testable. Vos routes doivent l'appeler : masquer un bouton dans l'interface
  * n'est pas une autorisation.
  */
 import { describe, expect, it } from 'vitest'
-import { Host, authorize, hashPassword, verifyPassword } from '../../../src/academie/module-3'
+import { Host, authorize, hashPassword, verifyPassword } from '../../../src/academie/module-4'
 
 function registered() {
   return Host.register({ email: 'hery@example.org', name: 'Hery' })
@@ -82,21 +86,21 @@ describe('stockage des mots de passe', () => {
 
 describe('autorisation côté serveur', () => {
   it('refuse un visiteur anonyme avec 401', () => {
-    const decision = authorize({ role: 'ANONYMOUS', action: 'REQUEST_BOOKING' })
+    const decision = authorize({ roles: [], action: 'REQUEST_BOOKING' })
     expect(decision.allowed).toBe(false)
     expect(decision.status).toBe(401)
   })
 
   it('refuse à un voyageur les routes d’hôte avec 403', () => {
     for (const action of ['PUBLISH_LISTING', 'EDIT_LISTING'] as const) {
-      const decision = authorize({ role: 'GUEST', action })
+      const decision = authorize({ roles: ['GUEST'], action })
       expect(decision.allowed, `un voyageur ne doit pas pouvoir ${action}`).toBe(false)
       expect(decision.status).toBe(403)
     }
   })
 
   it('autorise un voyageur à demander une réservation', () => {
-    const decision = authorize({ role: 'GUEST', action: 'REQUEST_BOOKING' })
+    const decision = authorize({ roles: ['GUEST'], action: 'REQUEST_BOOKING' })
     expect(decision.allowed).toBe(true)
   })
 
@@ -104,7 +108,7 @@ describe('autorisation côté serveur', () => {
   it('refuse la publication à un hôte non vérifié, même authentifié', () => {
     for (const verification of ['PENDING', 'REJECTED'] as const) {
       const decision = authorize({
-        role: 'HOST',
+        roles: ['HOST'],
         hostVerification: verification,
         action: 'PUBLISH_LISTING',
       })
@@ -115,10 +119,40 @@ describe('autorisation côté serveur', () => {
 
   it('autorise la publication à un hôte approuvé', () => {
     const decision = authorize({
-      role: 'HOST',
+      roles: ['HOST'],
       hostVerification: 'APPROVED',
       action: 'PUBLISH_LISTING',
     })
     expect(decision.allowed).toBe(true)
+  })
+})
+
+describe('un compte, deux rôles', () => {
+  it('laisse un compte voyageur et hôte approuvé réserver et publier', () => {
+    const roles = ['GUEST', 'HOST'] as const
+    for (const action of ['REQUEST_BOOKING', 'PUBLISH_LISTING', 'EDIT_LISTING'] as const) {
+      const decision = authorize({ roles: [...roles], hostVerification: 'APPROVED', action })
+      expect(decision.allowed, `un compte à deux rôles doit pouvoir ${action}`).toBe(true)
+    }
+  })
+
+  // La vérification de l'hôte ne doit pas bloquer le voyageur du même compte.
+  it('laisse réserver un compte dont la vérification d’hôte est en attente', () => {
+    const decision = authorize({
+      roles: ['GUEST', 'HOST'],
+      hostVerification: 'PENDING',
+      action: 'REQUEST_BOOKING',
+    })
+    expect(decision.allowed).toBe(true)
+  })
+
+  it('refuse la publication à ce même compte tant que l’hôte n’est pas approuvé', () => {
+    const decision = authorize({
+      roles: ['GUEST', 'HOST'],
+      hostVerification: 'PENDING',
+      action: 'PUBLISH_LISTING',
+    })
+    expect(decision.allowed).toBe(false)
+    expect(decision.status).toBe(403)
   })
 })

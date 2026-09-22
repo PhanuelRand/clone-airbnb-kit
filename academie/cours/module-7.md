@@ -156,7 +156,7 @@ CREATE EXTENSION IF NOT EXISTS btree_gist;
 Sans elle, vous obtiendrez l'erreur `data type uuid has no default operator
 class for access method "gist"`. Elle est livrée avec PostgreSQL; il suffit de
 l'activer, dans une migration, et aussi sur votre base de production au
-module 9.
+module 12.
 
 ## Un exemple minimal qui tourne
 
@@ -240,7 +240,7 @@ plus d'intervalle dans lequel quelqu'un puisse se glisser.
 
 1. **Activer l'extension.** Une migration versionnée avec
    `CREATE EXTENSION IF NOT EXISTS btree_gist;`. Notez-la : il faudra la rejouer
-   sur la base de production au module 9.
+   sur la base de production au module 12.
 2. **Passer à un intervalle.** Remplacez vos deux colonnes de dates par une
    colonne `daterange`, ou ajoutez-la. Ajoutez la contrainte
    `CHECK (NOT isempty(...))` : elle reprend, côté base, l'invariant que votre
@@ -278,7 +278,7 @@ toutes les lignes, annulées comprises.
 **Le test des cinq demandes simultanées passe, mais vous avez ajouté une file
 d'attente en JavaScript.**
 C'est le piège du module. Un verrou dans votre processus Node fonctionne tant
-qu'il n'y a **qu'un seul processus**. Au module 9, votre hébergeur lancera
+qu'il n'y a **qu'un seul processus**. Au module 12, votre hébergeur lancera
 peut-être deux instances, chacune avec son propre verrou, chacune persuadée
 d'être seule — et le bogue revient, en production, sans qu'aucun test ne
 l'annonce. L'invariant doit vivre dans la base, qui est la seule chose que les

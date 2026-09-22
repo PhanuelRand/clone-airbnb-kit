@@ -1,7 +1,11 @@
-# Votre code
+# Votre API
 
-C'est ici que vous construisez votre clone d'Airbnb. Le dossier est
-volontairement vide : c'est votre travail.
+C'est ici que vous construisez le serveur de votre clone d'Airbnb, avec Hono.
+Vous n'y trouvez qu'un point d'entrée et une route de santé : tout le reste est
+votre travail.
+
+L'interface est à côté, dans `web/`. Les deux sont deux applications
+distinctes, et la raison est écrite dans `docs/decisions/0005`.
 
 ## Comment le harnais atteint votre code
 

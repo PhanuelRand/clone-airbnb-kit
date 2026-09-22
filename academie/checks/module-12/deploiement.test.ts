@@ -1,5 +1,5 @@
 /**
- * Module 8 — Mise en production.
+ * Module 12 — Déploiement.
  *
  * Cette suite n'interroge pas votre code source : elle interroge **votre
  * application déployée**, à son URL publique. C'est la preuve qu'elle

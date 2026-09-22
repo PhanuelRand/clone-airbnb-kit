@@ -1,7 +1,7 @@
 /**
- * Module 3 — Annonces et photos.
+ * Module 5 — Annonces et photos.
  *
- * Contrat attendu, exporté par `src/academie/module-4.ts` :
+ * Contrat attendu, exporté par `src/academie/module-5.ts` :
  *
  *   export function createListing(input: {
  *     hostId: string; title: string
@@ -45,7 +45,7 @@ import {
   createUploadUrl,
   listPhotos,
   setCoverPhoto,
-} from '../../../src/academie/module-4'
+} from '../../../src/academie/module-5'
 
 const hostId = '33333333-3333-4333-8333-333333333333'
 const maxBytes = 10_000_000

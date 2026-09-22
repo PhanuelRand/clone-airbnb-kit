@@ -368,7 +368,7 @@ Deux règles que ce schéma encode et que la vérification contrôle :
 
 - **refuser** (`DECLINED`) n'est possible que depuis `REQUESTED`. C'est la
   réponse d'un hôte à une demande. Une fois la réservation confirmée, la sortie
-  s'appelle une annulation — et le module 8 leur appliquera des règles d'argent
+  s'appelle une annulation — et le module 10 leur appliquera des règles d'argent
   différentes;
 - aucun état terminal ne se rouvre. Une réservation terminée ne repasse pas en
   cours, une annulation ne se reprend pas.
@@ -419,7 +419,7 @@ facteur cent.
 
 Un fichier `.sql` numéroté, ajouté et **jamais modifié une fois appliqué**. Pas
 une génération automatique à partir de votre code : quand vous déploierez au
-module 9, il faudra rejouer exactement ces fichiers, dans cet ordre, sur une
+module 12, il faudra rejouer exactement ces fichiers, dans cet ordre, sur une
 base que vous ne pouvez pas effacer.
 
 Si vous vous trompez, vous n'éditez pas la migration fautive : vous en ajoutez

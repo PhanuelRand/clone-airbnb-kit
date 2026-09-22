@@ -1,11 +1,14 @@
 /**
- * Module 6 — Réservation sans double réservation.
+ * Module 7 — Réservation et calendrier.
  *
- * Le critère central du parcours : un logement n'a jamais deux réservations
- * actives sur la même nuit, même sous demandes simultanées. Une lecture suivie
- * d'une écriture ne suffit pas — il faut une garantie de la base. La réponse
- * attendue est une contrainte d'exclusion sur un `daterange`, avec l'extension
- * `btree_gist` pour joindre l'identifiant du logement à l'intervalle.
+ * Une réservation accepte un intervalle libre et refuse tout chevauchement,
+ * une demande à la fois. La convention est celle du module 2 : le jour de
+ * départ est EXCLU, donc un séjour qui commence le jour où un autre se termine
+ * ne le chevauche pas.
+ *
+ * Les demandes simultanées ne sont pas vérifiées ici, mais au module 9. C'est
+ * voulu : une implémentation qui lit puis écrit passe cette suite et échoue
+ * celle-là, et c'est ce que le module 9 apprend à diagnostiquer.
  *
  * Contrat attendu, exporté par `src/academie/module-7.ts` :
  *
@@ -18,19 +21,33 @@
  *
  *   export function cancelBooking(input: { bookingId: string }): Promise<void>
  *
+ *   export function respondToBooking(input: {
+ *     bookingId: string; hostId: string; decision: 'ACCEPT' | 'DECLINE'
+ *   }): Promise<{ status: number }>          // 200, ou 403 pour un autre que l'hôte
+ *
+ *   export function blockDates(input: {
+ *     listingId: string; hostId: string
+ *     from: string; to: string               // intervalle semi-ouvert
+ *   }): Promise<{ status: number }>          // 201, ou 403 pour un autre que l'hôte
+ *
  *   export function listBookings(listingId: string): Promise<
  *     { id: string; checkIn: string; checkOut: string; status: string }[]
  *   >
  *
- * Rappel de la convention : le jour de départ est EXCLU. Un séjour qui
- * commence le jour où un autre se termine ne chevauche pas.
+ * Une demande acceptée par `requestBooking` retient les dates et attend la
+ * réponse de l'hôte, au statut PENDING. L'hôte la confirme (CONFIRMED) ou la
+ * décline (DECLINED); une demande déclinée libère ses dates. Les dates que
+ * l'hôte bloque, pour un usage personnel ou des travaux, se refusent comme une
+ * réservation.
  */
 import { describe, expect, it } from 'vitest'
 import {
+  blockDates,
   cancelBooking,
   createListing,
   listBookings,
   requestBooking,
+  respondToBooking,
 } from '../../../src/academie/module-7'
 
 const hostId = '66666666-6666-4666-8666-666666666666'
@@ -99,43 +116,76 @@ describe('chevauchements refusés', () => {
   }
 })
 
-describe('demandes simultanées', () => {
-  // Le test que seule une garantie de la base fait passer de façon fiable.
-  it('désigne exactement un gagnant parmi cinq demandes identiques', async () => {
+describe('réponse de l’hôte', () => {
+  it('laisse une nouvelle demande en attente de l’hôte', async () => {
     const listingId = await createListing({ hostId })
+    const request = await book(listingId, '2026-11-02', '2026-11-05')
 
-    const results = await Promise.all(
-      Array.from({ length: 5 }, (_unused, index) =>
-        book(listingId, '2026-11-05', '2026-11-09', `guest-${index}`),
-      ),
+    const [booking] = await listBookings(listingId)
+    expect(booking?.id).toBe(request.bookingId)
+    expect(booking?.status).toBe('PENDING')
+  })
+
+  it('confirme la réservation quand l’hôte l’accepte', async () => {
+    const listingId = await createListing({ hostId })
+    const request = await book(listingId, '2026-11-02', '2026-11-05')
+    if (!request.bookingId) throw new Error('la demande aurait dû être retenue')
+
+    const answer = await respondToBooking({ bookingId: request.bookingId, hostId, decision: 'ACCEPT' })
+    expect(answer.status).toBe(200)
+    expect((await listBookings(listingId))[0]?.status).toBe('CONFIRMED')
+  })
+
+  it('libère les dates quand l’hôte décline', async () => {
+    const listingId = await createListing({ hostId })
+    const request = await book(listingId, '2026-11-02', '2026-11-05')
+    if (!request.bookingId) throw new Error('la demande aurait dû être retenue')
+
+    await respondToBooking({ bookingId: request.bookingId, hostId, decision: 'DECLINE' })
+    expect((await book(listingId, '2026-11-03', '2026-11-04')).accepted).toBe(true)
+  })
+
+  // Côté serveur : connaître l'identifiant d'une demande ne suffit pas à y répondre.
+  it('refuse la réponse de quelqu’un d’autre que l’hôte avec 403', async () => {
+    const listingId = await createListing({ hostId })
+    const request = await book(listingId, '2026-11-02', '2026-11-05')
+    if (!request.bookingId) throw new Error('la demande aurait dû être retenue')
+
+    const answer = await respondToBooking({
+      bookingId: request.bookingId,
+      hostId: guestId,
+      decision: 'ACCEPT',
+    })
+    expect(answer.status).toBe(403)
+    expect((await listBookings(listingId))[0]?.status).toBe('PENDING')
+  })
+})
+
+describe('dates bloquées par l’hôte', () => {
+  it('refuse une demande sur des dates bloquées, avec un motif', async () => {
+    const listingId = await createListing({ hostId })
+    expect((await blockDates({ listingId, hostId, from: '2026-12-20', to: '2026-12-27' })).status).toBe(
+      201,
     )
 
-    expect(results.filter((result) => result.accepted)).toHaveLength(1)
-    expect(await listBookings(listingId)).toHaveLength(1)
+    const result = await book(listingId, '2026-12-24', '2026-12-26')
+    expect(result.accepted).toBe(false)
+    expect(result.reason).toBeTruthy()
   })
 
-  it('désigne un seul gagnant parmi des intervalles qui se chevauchent partiellement', async () => {
+  it('garde réservable le jour où le blocage se termine', async () => {
     const listingId = await createListing({ hostId })
+    await blockDates({ listingId, hostId, from: '2026-12-20', to: '2026-12-27' })
 
-    const results = await Promise.all([
-      book(listingId, '2026-11-05', '2026-11-10', 'guest-a'),
-      book(listingId, '2026-11-08', '2026-11-12', 'guest-b'),
-      book(listingId, '2026-11-09', '2026-11-15', 'guest-c'),
-    ])
-
-    expect(results.filter((result) => result.accepted).length).toBe(1)
+    expect((await book(listingId, '2026-12-27', '2026-12-30')).accepted).toBe(true)
   })
 
-  it('laisse passer des demandes simultanées sur des intervalles disjoints', async () => {
+  it('ne laisse que l’hôte du logement bloquer ses dates', async () => {
     const listingId = await createListing({ hostId })
+    const result = await blockDates({ listingId, hostId: guestId, from: '2026-12-20', to: '2026-12-27' })
 
-    const results = await Promise.all([
-      book(listingId, '2026-12-01', '2026-12-05', 'guest-a'),
-      book(listingId, '2026-12-05', '2026-12-09', 'guest-b'),
-      book(listingId, '2026-12-09', '2026-12-13', 'guest-c'),
-    ])
-
-    expect(results.filter((result) => result.accepted)).toHaveLength(3)
+    expect(result.status).toBe(403)
+    expect((await book(listingId, '2026-12-21', '2026-12-23')).accepted).toBe(true)
   })
 })
 

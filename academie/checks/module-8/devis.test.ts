@@ -1,7 +1,7 @@
 /**
- * Module 5 — Calendrier, règles de l'hôte et prix d'un séjour.
+ * Module 8 — Paiement et tarification, le devis.
  *
- * Contrat attendu, exporté par `src/academie/module-6.ts` :
+ * Contrat attendu, exporté par `src/academie/module-8.ts` :
  *
  *   export function createListing(input: {
  *     hostId: string; nightlyCents: number; currency: string
@@ -12,8 +12,9 @@
  *   }): Promise<void>
  *
  *   export function blockDates(input: {
- *     listingId: string; from: string; to: string      // intervalle semi-ouvert
- *   }): Promise<void>
+ *     listingId: string; hostId: string
+ *     from: string; to: string                          // intervalle semi-ouvert
+ *   }): Promise<{ status: number }>                    // celle du module 7
  *
  *   export function setSeasonalRate(input: {
  *     listingId: string; from: string; to: string; nightlyCents: number
@@ -47,7 +48,7 @@ import {
   quoteStay,
   setHostRules,
   setSeasonalRate,
-} from '../../../src/academie/module-6'
+} from '../../../src/academie/module-8'
 
 const hostId = '55555555-5555-4555-8555-555555555555'
 const today = '2026-06-01'
@@ -198,7 +199,7 @@ describe('règles de l’hôte', () => {
 
   it('refuse un séjour qui touche une date bloquée', async () => {
     const listingId = await listing()
-    await blockDates({ listingId, from: '2026-08-10', to: '2026-08-15' })
+    await blockDates({ listingId, hostId, from: '2026-08-10', to: '2026-08-15' })
 
     expect(await refusalOf(listingId, '2026-08-12', '2026-08-14')).toBeTruthy()
     expect(await refusalOf(listingId, '2026-08-14', '2026-08-18')).toBeTruthy()
@@ -206,7 +207,7 @@ describe('règles de l’hôte', () => {
 
   it('laisse disponible le jour où le blocage se termine', async () => {
     const listingId = await listing()
-    await blockDates({ listingId, from: '2026-08-10', to: '2026-08-15' })
+    await blockDates({ listingId, hostId, from: '2026-08-10', to: '2026-08-15' })
 
     expect(await refusalOf(listingId, '2026-08-15', '2026-08-18')).toBeNull()
   })

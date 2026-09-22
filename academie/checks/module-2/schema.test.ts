@@ -1,5 +1,5 @@
 /**
- * Module 1 — vérifications structurelles.
+ * Module 2 — Architecture, le schéma.
  *
  * Elles lisent votre dépôt sans exécuter de code : présence d'une migration
  * versionnée, contraintes déclarées, montants en entiers. Ce sont les critères

@@ -4,6 +4,30 @@ Ce dossier contient le **harnais de vérification** du parcours « Clone Airbnb 
 (ADR-0016). Il est publié dans le dépôt modèle GitHub dont chaque participant
 part, et la plateforme compare son empreinte à chaque remise.
 
+## Ce que vous trouvez dans votre dépôt
+
+| Chemin | Rôle |
+| --- | --- |
+| `academie/` | Le harnais de vérification. Ne le modifiez pas : son empreinte est comparée à chaque remise |
+| `src/` | Votre API, en Hono. Et `src/academie/` pour vos adaptateurs |
+| `web/` | Votre interface, en Vite et React, avec Tailwind et shadcn déjà configurés |
+| `docs/decisions/` | Les choix déjà faits pour ce projet, et un gabarit pour les vôtres |
+| `AGENTS.md` | Les règles que votre assistant IA doit suivre ici |
+
+Deux installations, parce que ce sont deux applications :
+
+```bash
+npm install            # l'API et les vérifications
+npm run academie 1     # votre première vérification
+
+cd web && npm install  # l'interface
+npm run dev            # elle s'ouvre sur http://localhost:5173
+```
+
+Les vérifications n'ont pas besoin de l'interface : elles ne l'installent
+jamais, ce qui les garde rapides et vous épargne un téléchargement tant que
+vous n'en avez pas besoin.
+
 ## Ce qui est versionné ici
 
 | Chemin | Rôle |

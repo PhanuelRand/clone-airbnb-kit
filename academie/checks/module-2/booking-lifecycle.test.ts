@@ -1,5 +1,5 @@
 /**
- * Module 1 — Fondations et modèle du domaine.
+ * Module 2 — Architecture, le cycle de vie d’une réservation.
  *
  * Suite de conformité écrite par l'Académie. Elle appelle VOTRE code à travers
  * l'adaptateur du module. Ces fichiers font partie du harnais : les modifier
@@ -83,7 +83,7 @@ describe('cycle de vie d’une réservation', () => {
   })
 
   // Refuser est une réponse de l'hôte à une demande : une fois confirmée, la
-  // sortie s'appelle une annulation, et le module 8 lui applique une politique.
+  // sortie s'appelle une annulation, et le module 10 lui applique une politique.
   it('refuse de décliner une réservation déjà confirmée', () => {
     const booking = requested()
     booking.transitionTo('CONFIRMED' as never)

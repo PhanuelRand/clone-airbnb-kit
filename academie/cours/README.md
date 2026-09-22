@@ -1,6 +1,6 @@
 # Les cours du parcours
 
-Un fichier par module : `module-1.md` à `module-9.md`.
+Un fichier par module : `module-1.md` à `module-14.md`.
 
 C'est ici que le parcours **enseigne**. La consigne du portail dit ce qu'il faut
 produire et à quoi ça sera mesuré; le cours explique comment y arriver.

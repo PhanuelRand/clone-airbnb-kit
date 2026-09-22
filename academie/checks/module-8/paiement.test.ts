@@ -1,7 +1,8 @@
 /**
- * Module 7 — Paiement, versement à l'hôte et annulation.
+ * Module 8 — Paiement et tarification, l'encaissement.
  *
- * Contrat attendu, exporté par `src/academie/module-8.ts` :
+ * Contrat attendu, exporté par `src/academie/module-8.ts`, en plus des
+ * fonctions de devis :
  *
  *   export function capturePayment(input: {
  *     bookingId: string; amountCents: number; idempotencyKey: string
@@ -19,36 +20,21 @@
  *     { payoutId: string; amountCents: number }[]
  *   >
  *
- *   export function refundFor(input: {
- *     policy: 'FLEXIBLE' | 'MODERATE' | 'STRICT'
- *     totalCents: number
- *     checkIn: string          // 'AAAA-MM-JJ'
- *     cancelledAt: string      // 'AAAA-MM-JJ'
- *   }): { refundCents: number }
- *
  *   export function signWebhook(payload: string): string
  *   export function handleWebhook(input: {
  *     payload: string; signature: string
  *   }): Promise<{ status: number }>
  *
- * Barème de remboursement imposé par la consigne, où `joursAvant` est le nombre
- * de jours entiers entre l'annulation et l'arrivée :
- *
- *   FLEXIBLE   joursAvant >= 1  -> 100 %          sinon 0 %
- *   MODERATE   joursAvant >= 5  -> 100 %
- *              joursAvant >= 1  ->  50 %          sinon 0 %
- *   STRICT     joursAvant >= 7  ->  50 %          sinon 0 %
- *
- * Les pourcentages sont arrondis à l'entier inférieur.
+ * Les montants sont des entiers dans la plus petite unité de la monnaie :
+ * des centimes pour l'euro, des ariary entiers pour l'ariary.
  *
  * `signWebhook` n'existe que pour permettre à cette suite de fabriquer une
  * signature valide. Votre serveur, lui, vérifie celle du prestataire.
  *
  * Un événement `payment.succeeded` correctement signé doit enregistrer le débit
  * de la réservation qu'il désigne, exactement comme `capturePayment` le ferait,
- * et `listCharges` doit le voir. C'est le sens du module : un paiement est
- * acquis quand le prestataire le confirme, pas quand le navigateur du voyageur
- * affiche une page de succès.
+ * et `listCharges` doit le voir. Un paiement est acquis quand le prestataire le
+ * confirme, pas quand le navigateur du voyageur affiche une page de succès.
  */
 import { describe, expect, it } from 'vitest'
 import {
@@ -56,7 +42,6 @@ import {
   handleWebhook,
   listCharges,
   listPayouts,
-  refundFor,
   releasePayout,
   signWebhook,
 } from '../../../src/academie/module-8'
@@ -145,57 +130,6 @@ describe('versement à l’hôte', () => {
 
     expect(replay.payoutId).toBe(first.payoutId)
     expect(await listPayouts(booking)).toHaveLength(1)
-  })
-})
-
-describe('barème de remboursement', () => {
-  const total = 40_001
-
-  const cases: {
-    policy: 'FLEXIBLE' | 'MODERATE' | 'STRICT'
-    cancelledAt: string
-    expected: number
-  }[] = [
-    { policy: 'FLEXIBLE', cancelledAt: '2026-09-01', expected: total },
-    { policy: 'FLEXIBLE', cancelledAt: '2026-09-09', expected: total },
-    { policy: 'FLEXIBLE', cancelledAt: '2026-09-10', expected: 0 },
-    { policy: 'MODERATE', cancelledAt: '2026-09-01', expected: total },
-    { policy: 'MODERATE', cancelledAt: '2026-09-05', expected: total },
-    { policy: 'MODERATE', cancelledAt: '2026-09-07', expected: Math.floor(total / 2) },
-    { policy: 'MODERATE', cancelledAt: '2026-09-10', expected: 0 },
-    { policy: 'STRICT', cancelledAt: '2026-09-01', expected: Math.floor(total / 2) },
-    { policy: 'STRICT', cancelledAt: '2026-09-03', expected: Math.floor(total / 2) },
-    { policy: 'STRICT', cancelledAt: '2026-09-05', expected: 0 },
-  ]
-
-  for (const scenario of cases) {
-    it(`${scenario.policy}, annulée le ${scenario.cancelledAt}`, () => {
-      const result = refundFor({
-        policy: scenario.policy,
-        totalCents: total,
-        checkIn: '2026-09-10',
-        cancelledAt: scenario.cancelledAt,
-      })
-
-      expect(result.refundCents).toBe(scenario.expected)
-    })
-  }
-
-  it('ne rembourse jamais plus que le total, ni un montant négatif', () => {
-    for (const policy of ['FLEXIBLE', 'MODERATE', 'STRICT'] as const) {
-      for (const cancelledAt of ['2026-08-01', '2026-09-09', '2026-09-11']) {
-        const { refundCents } = refundFor({
-          policy,
-          totalCents: total,
-          checkIn: '2026-09-10',
-          cancelledAt,
-        })
-
-        expect(Number.isInteger(refundCents)).toBe(true)
-        expect(refundCents).toBeGreaterThanOrEqual(0)
-        expect(refundCents).toBeLessThanOrEqual(total)
-      }
-    }
   })
 })
 
