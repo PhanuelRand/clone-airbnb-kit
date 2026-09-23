@@ -19,6 +19,28 @@ export function App() {
       </div>
 
       <div className="rounded-lg border p-5">
+        <h2 className="font-medium">Ce que le kit vous donne</h2>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>
+            Des composants dans{' '}
+            <code className="rounded bg-muted px-1.5 py-0.5 text-xs">src/components/ui</code>{' '}
+            : bouton, champ, étiquette, carte, badge, séparateur, boîte de dialogue, fenêtre
+            flottante, et un calendrier qui sait choisir une plage de dates.
+          </li>
+          <li>
+            Un routeur, dans{' '}
+            <code className="rounded bg-muted px-1.5 py-0.5 text-xs">src/main.tsx</code> : une
+            adresse, un écran.
+          </li>
+          <li>
+            Des logements inventés, dans{' '}
+            <code className="rounded bg-muted px-1.5 py-0.5 text-xs">src/donnees/fictives.ts</code>
+            , pour construire vos écrans avant que l’API existe.
+          </li>
+        </ul>
+      </div>
+
+      <div className="rounded-lg border p-5">
         <h2 className="font-medium">Ajouter un composant</h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
           Tout est déjà configuré. Depuis ce dossier, une commande suffit :

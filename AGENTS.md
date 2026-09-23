@@ -76,7 +76,8 @@ docs/decisions/      pourquoi les choses sont ainsi.
 
 Le front et l'API sont **deux applications** qui s'installent séparément.
 `npm install` à la racine pour l'API et les vérifications, `npm install` dans
-`web/` pour le front. C'est voulu : les vérifications n'ont pas besoin de React.
+`web/` pour le front. À partir du module 3, les vérifications construisent aussi le
+front avec `npm run build` : une erreur de type dans `web/` fait échouer le module.
 
 ## Les commandes
 
@@ -102,6 +103,17 @@ npx shadcn@latest add button
 
 Il arrive dans `web/src/components/ui`. C'est un fichier de l'étudiant : il se
 modifie librement, et ce n'est pas une dépendance à mettre à jour.
+
+Le kit en fournit déjà plusieurs : bouton, champ, étiquette, carte, badge,
+séparateur, boîte de dialogue, fenêtre flottante, et `calendar`, qui choisit
+une plage de dates. Le routeur est `react-router`, câblé dans
+`web/src/main.tsx`. Des logements inventés attendent dans
+`web/src/donnees/fictives.ts`.
+
+Les écrans se construisent au module 3 sur ces données fictives. Chaque module
+suivant branche l'écran qui le concerne sur l'API : quand vous aidez à ce
+branchement, remplacez l'import des données fictives par un appel à l'API, sans
+réécrire la mise en page.
 
 C'est le second endroit, avec l'adaptateur, où des noms anglais sont imposés.
 On garde ici la convention de shadcn plutôt que la traduire : c'est celle que
