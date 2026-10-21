@@ -1,5 +1,5 @@
 /**
- * Module 14 — Avis croisés. Module Platine.
+ * Module 17 : Avis croisés. Module Platine.
  *
  * Après un séjour, le voyageur note l'hôte et l'hôte note le voyageur. Les avis
  * sont publiés en double aveugle : aucun ne voit l'avis de l'autre avant
@@ -13,11 +13,16 @@
  * - une note est un entier de 1 à 5;
  * - les avis d'un séjour sont publiés quand les deux sont déposés, ou quatorze
  *   jours après le départ, même s'il n'y en a qu'un;
- * - passé ces quatorze jours, on ne dépose plus d'avis;
+ * - on dépose un avis jusqu'au quatorzième jour après le départ inclus, plus
+ *   ensuite;
  * - la note d'un hôte est la moyenne des avis publiés de ses voyageurs,
  *   arrondie au dixième.
  *
- * Contrat attendu, exporté par `src/academie/module-14.ts` :
+ * Contrat attendu, exporté par `src/academie/module-17.ts` :
+ *
+ *   export function createAccount(input: {
+ *     roles: ('GUEST' | 'HOST')[]
+ *   }): Promise<string>     // un compte au courriel inventé; un HOST est déjà approuvé
  *
  *   export function completeStay(input: {
  *     guestId: string; hostId: string; checkOut: string   // 'AAAA-MM-JJ'
@@ -40,20 +45,34 @@
  * Les dates sont passées en paramètre plutôt que lues sur l'horloge : c'est ce
  * qui rend la règle des quatorze jours vérifiable sans attendre quatorze jours.
  */
-import { randomUUID } from 'node:crypto'
-import { describe, expect, it } from 'vitest'
-import { completeStay, hostRating, publicReviews, submitReview } from '../../../src/academie/module-14'
+import { beforeAll, describe, expect, it } from 'vitest'
+import {
+  completeStay,
+  createAccount,
+  hostRating,
+  publicReviews,
+  submitReview,
+} from '../../../src/academie/module-17'
 
-const guestId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
-const strangerId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'
+let guestId = ''
+let strangerId = ''
 
-const checkOut = '2026-08-10'
-const duringWindow = '2026-08-12'
-const afterWindow = '2026-08-25'
+beforeAll(async () => {
+  guestId = await createAccount({ roles: ['GUEST'] })
+  strangerId = await createAccount({ roles: ['GUEST'] })
+})
+
+const newHost = () => createAccount({ roles: ['HOST'] })
+const newGuest = () => createAccount({ roles: ['GUEST'] })
+
+const checkOut = '2030-08-10'
+const duringWindow = '2030-08-12'
+const afterWindow = '2030-08-25'
 
 /** Chaque test a son propre hôte, pour que les moyennes ne se mélangent pas. */
-async function stay(hostId = randomUUID(), guest = guestId) {
-  const stayId = await completeStay({ guestId: guest, hostId, checkOut })
+async function stay(host?: string, guest?: string) {
+  const hostId = host ?? (await newHost())
+  const stayId = await completeStay({ guestId: guest ?? guestId, hostId, checkOut })
   return { stayId, hostId }
 }
 
@@ -84,6 +103,11 @@ describe('dépôt d’un avis', () => {
     for (const rating of [0, 6, 3.5, -1]) {
       expect((await review(stayId, guestId, rating)).status, `note ${rating}`).toBe(400)
     }
+  })
+
+  it('accepte encore un avis le quatorzième jour après le départ', async () => {
+    const { stayId } = await stay()
+    expect((await review(stayId, guestId, 5, '2030-08-24')).status).toBe(201)
   })
 
   it('refuse un avis déposé plus de quatorze jours après le départ avec 410', async () => {
@@ -128,10 +152,10 @@ describe('note de l’hôte', () => {
   })
 
   it('fait la moyenne des voyageurs, arrondie au dixième, sans l’avis de l’hôte', async () => {
-    const hostId = randomUUID()
+    const hostId = await newHost()
     const ratings = [5, 4, 4]
     for (const rating of ratings) {
-      const guest = randomUUID()
+      const guest = await newGuest()
       const { stayId } = await stay(hostId, guest)
       await review(stayId, guest, rating)
       await review(stayId, hostId, 1)

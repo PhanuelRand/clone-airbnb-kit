@@ -1,5 +1,5 @@
 /**
- * Module 11 — Tests, les vôtres.
+ * Module 14 : Tests, les vôtres.
  *
  * Jusqu'ici, les vérifications de l'Académie testaient votre code. Elles
  * s'arrêteront à la fin du parcours; votre application, elle, continuera de
@@ -10,7 +10,7 @@
  * passent, et qu'ils couvrent les trois parcours où une erreur coûte de
  * l'argent : la réservation, le paiement et l'annulation.
  *
- * Contrat attendu, exporté par `src/academie/module-11.ts` :
+ * Contrat attendu, exporté par `src/academie/module-14.ts` :
  *
  *   export const testsEtudiant = {
  *     fichiers: string[],   // par exemple ['src/reservation.test.ts']
@@ -23,7 +23,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { isAbsolute, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { testsEtudiant } from '../../../src/academie/module-11'
+import { testsEtudiant } from '../../../src/academie/module-14'
 
 function plain(text: string) {
   return text
@@ -70,7 +70,11 @@ describe('vos fichiers de test', () => {
 
   it('contiennent au moins six tests, et chacun vérifie quelque chose', () => {
     expect(testNames().length, 'écrivez au moins six tests').toBeGreaterThanOrEqual(6)
-    expect(sources(), 'un test sans expect ne vérifie rien').toMatch(/\bexpect\(/)
+    for (const path of paths().filter((file) => existsSync(file))) {
+      expect(readFileSync(path, 'utf8'), `${path} : un test sans expect ne vérifie rien`).toMatch(
+        /\bexpect\(/,
+      )
+    }
   })
 })
 
@@ -92,15 +96,13 @@ describe('ce qu’ils couvrent', () => {
 })
 
 describe('leur exécution', () => {
-  // Vos tests tournent dans un processus à part, exactement comme vous les
-  // lancez vous-même avec `npx vitest run`.
+  // Vos tests tournent dans un processus à part, comme `npm test` les lance
+  // chez vous, avec la base des vérifications.
   it('passent tous', { timeout: 180_000 }, () => {
     const files = testsEtudiant.fichiers
-    const result = spawnSync('npx', ['vitest', 'run', ...files], {
-      encoding: 'utf8',
-      shell: process.platform === 'win32',
-      env: process.env,
-    })
+    // Une seule chaîne de commande : Windows n'avertit pas, et npx est trouvé partout.
+    const commande = ['npx vitest run', ...files.map((file) => `"${file}"`)].join(' ')
+    const result = spawnSync(commande, { encoding: 'utf8', shell: true, env: process.env })
     expect(result.status, `${result.stdout ?? ''}\n${result.stderr ?? ''}`.slice(-3000)).toBe(0)
   })
 })

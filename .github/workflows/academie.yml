@@ -29,11 +29,12 @@ jobs:
       # n'empêche pas de voir le résultat des modules 1 et 2.
       fail-fast: false
       matrix:
-        module: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        # 18 est l'extra visuel, vendu à part : il suit le module 15.
+        module: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
     services:
       postgres:
-        # btree_gist, exigée par la contrainte d'exclusion du module 9, est
+        # btree_gist, exigée par la contrainte d'exclusion du module 12, est
         # fournie par l'image officielle : `CREATE EXTENSION btree_gist`.
         image: postgres:18
         env:
@@ -52,7 +53,7 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -65,10 +66,25 @@ jobs:
       - name: Installer les dépendances du front
         run: npm ci --prefix web
 
+      # Crée les tables de la base de vérification avec vos migrations, par le
+      # script « migrate » de votre package.json. Sans ce script, rien ne se passe.
+      - name: Appliquer vos migrations
+        run: npm run migrate --if-present
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/stays_test
+
       - name: Vérifications du module ${{ matrix.module }}
         run: node academie/run.mjs ${{ matrix.module }}
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/stays_test
-          # Renseignez ce secret au dernier module, quand votre application est
-          # déployée : la suite finale interroge son URL publique.
+          # Des valeurs de vérification seulement : ce ne sont pas des secrets.
+          ORIGINE_INTERFACE: http://localhost:5173
+          # La même valeur que dans .env.example : une adresse construite avec
+          # ADRESSE_API doit être identique ici et sur votre machine.
+          ADRESSE_API: http://localhost:3000
+          SECRET_STOCKAGE: valeur-de-verification-du-stockage
+          SECRET_WEBHOOK: valeur-de-verification-du-prestataire
+          # Renseignez ces deux secrets au module 15, quand votre application est
+          # déployée : la suite de mise en production interroge leurs adresses.
           DEPLOYMENT_URL: ${{ secrets.DEPLOYMENT_URL }}
+          INTERFACE_URL: ${{ secrets.INTERFACE_URL }}

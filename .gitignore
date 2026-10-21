@@ -5,3 +5,9 @@ coverage/
 .env.local
 *.log
 .DS_Store
+.data/
+
+# Données PostgreSQL locales, même avec DATA_DIR personnalisé.
+**/connexion.json
+**/init-password
+**/postgres/

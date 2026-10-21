@@ -1,83 +1,64 @@
-# Votre API
+# Votre serveur
 
 C'est ici que vous construisez le serveur de votre clone d'Airbnb, avec Hono.
-Vous n'y trouvez qu'un point d'entrée et une route de santé : tout le reste est
-votre travail.
+On l'appelle aussi l'API : c'est le programme qui reçoit les demandes de votre
+interface et leur répond.
 
-L'interface est à côté, dans `web/`. Les deux sont deux applications
-distinctes, et la raison est écrite dans `docs/decisions/0005`.
+- `app.ts` décrit vos routes. C'est là que vous écrivez.
+- `serveur.ts` démarre l'application. Vous le modifiez rarement, et le cours
+  vous dit quand : pour une tâche qui revient à intervalle régulier, ou pour
+  brancher le temps réel (le WebSocket).
 
-## Comment le harnais atteint votre code
+L'interface est à côté, dans `web/`. Ce sont deux applications distinctes, et
+la raison est écrite dans `docs/decisions/0005`.
 
-Les suites de vérification n'importent **jamais** vos fichiers directement.
-Elles importent un seul fichier par module, que vous écrivez :
+## Les fichiers traducteurs
 
-```text
-src/academie/module-1.ts
-src/academie/module-2.ts
-...
-```
+Les vérifications de l'Académie n'ouvrent jamais vos fichiers directement.
+Elles lisent un seul fichier par module, que vous écrivez dans `src/academie/` :
+`module-1.ts`, `module-2.ts`, et ainsi de suite.
 
-Ce fichier est un **adaptateur** : il réexporte, sous les noms attendus par le
-harnais, ce que vous avez construit sous les noms que vous avez choisis.
+Ce fichier traduit. Il donne aux vérifications, sous les noms qu'elles
+attendent, ce que vous avez construit sous vos propres noms :
 
 ```ts
-// src/academie/module-1.ts — vous écrivez ce fichier.
+// src/academie/module-2.ts
+// À gauche, le nom attendu. À droite, le vôtre.
 export { Reservation as Booking } from '../domaine/reservation'
-export type { EtatReservation as BookingStatus } from '../domaine/reservation'
-
-export const schema = {
-  migrationsDir: 'migrations',
-  tables: {
-    host: 'hotes',
-    guest: 'voyageurs',
-    listing: 'annonces',
-    booking: 'reservations',
-  },
-  moneyColumns: ['reservations.montant_total'],
-}
 ```
 
-Vous nommez vos tables, vos classes et vos dossiers comme vous voulez. Vous
-organisez votre architecture comme vous voulez. Le harnais ne connaît que
-l'adaptateur, et l'adaptateur dit où regarder.
+Vous nommez donc vos tables, vos fichiers et vos fonctions comme vous voulez.
+Ce que chaque fichier traducteur doit fournir est écrit dans le paragraphe
+« Contrat de vérification » du module, sur le portail, et en tête des fichiers
+de `academie/checks/module-N/`.
 
-L'en-tête de chaque fichier de `academie/checks/` écrit noir sur blanc ce que
-l'adaptateur de ce module doit exporter. La consigne du module sur le portail
-dit la même chose : les deux sont d'accord, il n'y a pas de contrat caché.
+Le fichier du module 1 est déjà là, avec un texte à remplacer.
 
-## Où est expliqué ce qu'il faut faire
-
-Trois endroits, et ils ne disent pas la même chose :
+## Où trouver de l'aide
 
 | Où | Ce que vous y trouvez |
-|---|---|
-| La consigne, sur le portail | Ce qu'il faut produire, et les critères qui le mesurent |
-| `academie/cours/module-N.md` | **Comment y arriver** : les notions, un exemple qui tourne, les étapes, les erreurs fréquentes |
-| L'en-tête de `academie/checks/module-N/` | Les signatures exactes que votre adaptateur doit exporter |
+| --- | --- |
+| Le cours du module, sur le portail | Comment y arriver : les notions, les étapes, les demandes à faire à votre assistant |
+| La consigne du module, sur le portail | Ce qu'il faut produire, et à quoi ce sera mesuré |
+| Le message d'une vérification rouge | Ce qui manque, en français |
 
-Quand vous êtes bloqué, c'est le cours qu'il faut ouvrir. Il est dans ce dépôt,
-donc lisible hors ligne, sans connexion.
+## Votre façon de travailler
 
-## Votre boucle de travail
+Au premier envoi sur GitHub, presque toutes les vérifications sont rouges. C'est
+normal : vous les faites passer au vert une par une, module après module.
 
-Au premier push, les huit vérifications sont rouges. C'est normal : vous les
-faites passer au vert une par une, module après module.
-
-Pour voir où vous en êtes sans attendre l'intégration continue :
+Pour voir où vous en êtes sans attendre GitHub :
 
 ```bash
-npm install
-npm run academie 1
+npm run academie 3
 ```
 
-La commande lance les suites des modules 1 à N. Elles sont cumulatives : au
-module 5, les quatre précédentes tournent encore. Lancez-la avant chaque push.
+La commande lance les vérifications des modules 1 à 3. Elles s'accumulent : au
+module 5, celles des modules 1 à 4 tournent encore, pour qu'un changement ne
+casse pas ce qui marchait. Lancez-la avant chaque envoi.
 
-## Ce que le harnais ne vérifie pas
+## Ce que les vérifications ne contrôlent pas
 
-Certains critères de la consigne ne sont pas exécutables — une mesure de
-performance, une justification de conception. Ils sont marqués **« Relu par un
-mentor »** dans la consigne, et vous les déposez dans `academie/rapports/`.
-Ils n'ouvrent pas le module suivant, mais un mentor les lit si votre remise est
-escaladée.
+Certains critères ne se vérifient pas par un programme : une mesure de vitesse,
+un diagnostic écrit. Ils sont marqués « Relu par un mentor » dans la consigne.
+Vous les déposez dans `docs/rapports/`, sous le nom indiqué par le module.

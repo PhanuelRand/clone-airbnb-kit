@@ -1,5 +1,5 @@
 /**
- * Module 2 — Architecture, le schéma.
+ * Module 2 : Architecture, le schéma.
  *
  * Elles lisent votre dépôt sans exécuter de code : présence d'une migration
  * versionnée, contraintes déclarées, montants en entiers. Ce sont les critères
@@ -52,7 +52,7 @@ describe('migration initiale', () => {
       expect(
         sql,
         `table « ${table} » (${role}) absente des migrations`,
-      ).toMatch(new RegExp(`create\\s+table\\s+(if\\s+not\\s+exists\\s+)?[\\w."]*${table}\\b`))
+      ).toMatch(new RegExp(`create\\s+table\\s+(if\\s+not\\s+exists\\s+)?[\\w."]*${table.toLowerCase()}\\b`))
     }
   })
 

@@ -1,4 +1,4 @@
-# 0005 — Le front et l'API sont deux applications
+# 0005 : Le front et l'API sont deux applications
 
 - Date : 2026-09-22
 - Statut : Accepté, par l'Académie
@@ -15,13 +15,14 @@ front, en Vite et React. Chacune a ses dépendances et se lance séparément.
 
 ## Ce que ça coûte
 
-Deux installations, deux commandes pour développer, et deux déploiements au
-module 12. Il faut aussi autoriser explicitement votre front à interroger votre
-API, puisqu'ils ne sont pas à la même adresse.
+Deux installations et deux commandes pour développer. En développement, le
+front et l'API tournent sur deux ports différents : il faut autoriser
+explicitement votre front à interroger votre API. Au module 15, un seul service
+les sert tous les deux, à la même adresse : l'API y répond aussi sous `/api`.
 
-En échange, les vérifications des onze premiers modules n'installent jamais le
-front : elles restent rapides, et vous ne téléchargez React que lorsque vous en
-avez besoin.
+En échange, chaque application reste simple à lire et à déployer. Les
+vérifications des modules 1 et 2 n'ont pas besoin de l'interface; à partir du
+module 3, elles la construisent aussi.
 
 ## Ce qui a été écarté
 

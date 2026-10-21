@@ -1,5 +1,5 @@
 /**
- * Module 13 — Messagerie, en temps réel. Module Platine.
+ * Module 16 : Messagerie, en temps réel. Module Platine.
  *
  * Le voyageur et l'hôte d'une réservation se parlent. Deux règles font la
  * différence entre une messagerie et une fuite de données :
@@ -11,13 +11,21 @@
  *   voyageur et hôte s'arrangent en dehors de la plateforme, et la plateforme
  *   ne protège plus ni l'un ni l'autre.
  *
- * Contrat attendu, exporté par `src/academie/module-13.ts` :
+ * Contrat attendu, exporté par `src/academie/module-16.ts` :
+ *
+ *   export function createAccount(input: {
+ *     roles: ('GUEST' | 'HOST')[]
+ *   }): Promise<string>     // un compte au courriel inventé; un HOST est déjà approuvé
+ *
+ *   export function createBooking(): Promise<{
+ *     bookingId: string; guestId: string; hostId: string
+ *   }>                                           // une demande, pas encore confirmée
+ *
+ *   export function confirmBooking(bookingId: string): Promise<void>  // l'hôte accepte
  *
  *   export function openConversation(input: {
- *     guestId: string; hostId: string
- *   }): Promise<string>                          // l'identifiant de conversation
- *
- *   export function confirmBooking(conversationId: string): Promise<void>
+ *     bookingId: string
+ *   }): Promise<string>     // une nouvelle conversation entre le voyageur et l'hôte
  *
  *   export function sendMessage(input: {
  *     conversationId: string; senderId: string; body: string
@@ -32,21 +40,34 @@
  *     onMessage: (message: { senderId: string; body: string }) => void
  *   }): Promise<{ status: number; unsubscribe: () => void }>
  *
- * Un tiers reçoit 403 et aucun message. Un message vide reçoit 400. Le masquage
+ * Un tiers reçoit 403 et aucun message; un abonnement refusé rend quand même
+ * une fonction `unsubscribe`, qui ne fait rien. Un message vide reçoit 400. Le masquage
  * s'applique à la lecture comme à la diffusion en temps réel.
  */
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import {
   confirmBooking,
+  createAccount,
+  createBooking,
   openConversation,
   readConversation,
   sendMessage,
   subscribe,
-} from '../../../src/academie/module-13'
+} from '../../../src/academie/module-16'
 
-const guestId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd'
-const hostId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'
-const strangerId = 'ffffffff-ffff-4fff-8fff-ffffffffffff'
+// Chaque test part d'une réservation neuve : les conversations ne se mélangent pas.
+let bookingId = ''
+let guestId = ''
+let hostId = ''
+let strangerId = ''
+
+beforeAll(async () => {
+  strangerId = await createAccount({ roles: ['GUEST'] })
+})
+
+beforeEach(async () => {
+  ;({ bookingId, guestId, hostId } = await createBooking())
+})
 
 const cleanups: (() => void)[] = []
 afterEach(() => {
@@ -54,7 +75,7 @@ afterEach(() => {
 })
 
 function open() {
-  return openConversation({ guestId, hostId })
+  return openConversation({ bookingId })
 }
 
 /** Attend un message diffusé, ou échoue au bout de trois secondes. */
@@ -171,7 +192,7 @@ describe('coordonnées masquées avant confirmation', () => {
 
   it('laisse passer les coordonnées une fois la réservation confirmée', async () => {
     const conversationId = await open()
-    await confirmBooking(conversationId)
+    await confirmBooking(bookingId)
     await sendMessage({ conversationId, senderId: guestId, body: `Écrivez-moi à ${email}` })
 
     const [message] = (await readConversation({ conversationId, readerId: hostId })).messages

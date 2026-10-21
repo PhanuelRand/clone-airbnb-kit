@@ -1,11 +1,18 @@
 /**
- * Module 5 — Annonces et photos.
+ * Module 6 : Annonces et photos.
  *
- * Contrat attendu, exporté par `src/academie/module-5.ts` :
+ * Contrat attendu, exporté par `src/academie/module-6.ts` :
+ *
+ *   export function createAccount(input: {
+ *     roles: ('GUEST' | 'HOST')[]
+ *   }): Promise<string>     // un compte au courriel inventé; un HOST est déjà approuvé
  *
  *   export function createListing(input: {
- *     hostId: string; title: string
- *   }): Promise<string>                        // rend l'identifiant de l'annonce
+ *     hostId: string
+ *     title?: string; city?: string            // par défaut 'Annonce', 'Antananarivo'
+ *     nightlyPrice?: number; currency?: string // par défaut 100000, 'MGA'
+ *     capacity?: number                        // par défaut 2
+ *   }): Promise<string>
  *
  *   export function createUploadUrl(input: {
  *     listingId: string; contentType: string; sizeBytes: number
@@ -33,21 +40,31 @@
  * Règles imposées par la consigne, que cette suite vérifie :
  *   - seuls `image/jpeg`, `image/png` et `image/webp` sont acceptés;
  *   - un fichier de plus de 10 000 000 octets est refusé;
- *   - l'URL de téléversement expire dans l'heure;
+ *   - l'URL de téléversement expire dans les deux heures;
  *   - une annonce sans photo ne peut pas être publiée;
  *   - une annonce avec photos a exactement une photo de couverture.
+ *
+ * Les photos passent par votre port « stockage » : en local et dans ces
+ * vérifications, un stockage simulé qui écrit sur le disque; en production,
+ * Supabase Storage. Ces vérifications n'envoient aucun fichier : `attachPhoto`
+ * n'a pas à vérifier que le fichier a bien été téléversé.
  */
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import {
   attachPhoto,
   canPublishListing,
+  createAccount,
   createListing,
   createUploadUrl,
   listPhotos,
   setCoverPhoto,
-} from '../../../src/academie/module-5'
+} from '../../../src/academie/module-6'
 
-const hostId = '33333333-3333-4333-8333-333333333333'
+let hostId = ''
+
+beforeAll(async () => {
+  hostId = await createAccount({ roles: ['HOST'] })
+})
 const maxBytes = 10_000_000
 
 async function listingWithPhotos(count: number) {
@@ -80,7 +97,7 @@ describe('autorisation de téléversement', () => {
     expect(grant.url).toMatch(/^https?:\/\/.+/)
   })
 
-  it('fait expirer l’URL dans l’heure', async () => {
+  it('fait expirer l’URL dans les deux heures', async () => {
     const listingId = await createListing({ hostId, title: 'Bungalow à Ifaty' })
     const grant = await createUploadUrl({
       listingId,
@@ -92,7 +109,7 @@ describe('autorisation de téléversement', () => {
     const expiresAt = new Date(grant.expiresAt).getTime()
     expect(Number.isNaN(expiresAt), 'expiresAt doit être une date ISO 8601').toBe(false)
     expect(expiresAt).toBeGreaterThan(Date.now())
-    expect(expiresAt).toBeLessThanOrEqual(Date.now() + 3_600_000)
+    expect(expiresAt).toBeLessThanOrEqual(Date.now() + 7_200_000)
   })
 
   // Le type est décidé côté serveur : un client peut annoncer ce qu'il veut.

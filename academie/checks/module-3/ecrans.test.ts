@@ -1,5 +1,5 @@
 /**
- * Module 3 — Design, les écrans.
+ * Module 3 : Design, les écrans.
  *
  * Avant de brancher quoi que ce soit, vous construisez les cinq écrans qui
  * portent le produit, directement dans l'application, avec les composants du
@@ -151,11 +151,8 @@ describe('leur place dans l’application', () => {
 
   // Le front se construit comme au déploiement : types vérifiés, imports résolus.
   it('se construisent sans erreur', { timeout: 180_000 }, () => {
-    const result = spawnSync('npm', ['run', 'build'], {
-      cwd: WEB,
-      encoding: 'utf8',
-      shell: process.platform === 'win32',
-    })
+    // Une seule chaîne de commande : Windows n'avertit pas, et npm est trouvé partout.
+    const result = spawnSync('npm run build', { cwd: WEB, encoding: 'utf8', shell: true })
     expect(result.status, `${result.stdout ?? ''}\n${result.stderr ?? ''}`.slice(-3000)).toBe(0)
   })
 })

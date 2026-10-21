@@ -1,5 +1,5 @@
 /**
- * Module 1 — Mise en route.
+ * Module 1 : Mise en route.
  *
  * Ce module ne demande pas d'écrire un programme. Il demande de préparer sa
  * machine, de créer son dépôt et d'obtenir une première vérification verte.
@@ -16,7 +16,7 @@
  *     versionNode: string,  // ce que `node --version` répond chez vous
  *   }
  *
- * C'est aussi votre premier fichier adaptateur. Tous les modules suivants en
+ * C'est aussi votre premier fichier traducteur. Tous les modules suivants en
  * ont un : c'est par lui que les vérifications atteignent votre code, et c'est
  * ce qui vous laisse ensuite nommer vos fichiers comme vous voulez.
  */
@@ -43,7 +43,12 @@ describe('votre fiche de mise en route', () => {
   })
 
   it('nomme l’éditeur de code que vous utilisez', () => {
-    expect(miseEnRoute.editeur.trim().length, 'indiquez votre éditeur').toBeGreaterThan(1)
+    const editeur = miseEnRoute.editeur.trim()
+    expect(
+      GABARITS.includes(editeur.toLocaleLowerCase('fr')),
+      'remplacez le texte du gabarit par le nom de votre éditeur',
+    ).toBe(false)
+    expect(editeur.length, 'indiquez votre éditeur').toBeGreaterThan(1)
   })
 })
 
@@ -53,16 +58,18 @@ describe('votre installation de Node', () => {
   it('rapporte ce que `node --version` répond', () => {
     expect(
       miseEnRoute.versionNode.trim(),
-      'collez la réponse de `node --version`, par exemple v20.19.0',
+      'collez la réponse de `node --version`, par exemple v22.12.0',
     ).toMatch(/^v?\d+\.\d+\.\d+$/)
   })
 
   it('correspond à une version assez récente', () => {
-    const majeure = Number(/^v?(\d+)\./.exec(miseEnRoute.versionNode.trim())?.[1])
+    const [majeure = 0, mineure = 0] = (/^v?(\d+)\.(\d+)\./.exec(miseEnRoute.versionNode.trim()) ?? [])
+      .slice(1)
+      .map(Number)
     expect(
-      majeure,
-      'le parcours demande Node 20 ou plus récent; installez-le avant de continuer',
-    ).toBeGreaterThanOrEqual(20)
+      majeure > 22 || (majeure === 22 && mineure >= 12),
+      'le parcours demande Node 22.12 ou plus récent; installez-le avant de continuer',
+    ).toBe(true)
   })
 })
 

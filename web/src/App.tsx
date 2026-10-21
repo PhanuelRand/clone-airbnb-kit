@@ -43,7 +43,7 @@ export function App() {
       <div className="rounded-lg border p-5">
         <h2 className="font-medium">Ajouter un composant</h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Tout est déjà configuré. Depuis ce dossier, une commande suffit :
+          Tout est déjà configuré. Depuis le dossier web/, une commande suffit :
         </p>
         <pre className="mt-3 overflow-x-auto rounded-md bg-muted p-3 text-sm">
           <code>npx shadcn@latest add button</code>

@@ -1,5 +1,5 @@
 /**
- * Module 2 — Architecture, le cycle de vie d’une réservation.
+ * Module 2 : Architecture, le cycle de vie d’une réservation.
  *
  * Suite de conformité écrite par l'Académie. Elle appelle VOTRE code à travers
  * l'adaptateur du module. Ces fichiers font partie du harnais : les modifier
@@ -17,18 +17,18 @@
  *       listingId: string
  *       checkIn: string        // 'AAAA-MM-JJ', nuit d'arrivée incluse
  *       checkOut: string       // 'AAAA-MM-JJ', jour de départ EXCLU
- *       totalCents: number
+ *       total: number
  *       currency: string
  *     }): Booking              // lève si checkOut <= checkIn
  *     readonly status: BookingStatus
- *     readonly totalCents: number
+ *     readonly total: number
  *     readonly nights: number
  *     transitionTo(next: BookingStatus): void   // lève si interdite
  *   }
  *
  * La convention de dates est la même dans tout le parcours : l'intervalle est
  * semi-ouvert. Un séjour du 1er au 4 mars compte trois nuits, et un séjour qui
- * commence le 4 ne chevauche pas le précédent. Le module 7 en dépend.
+ * commence le 4 ne chevauche pas le précédent. Le module 9 en dépend.
  */
 import { describe, expect, it } from 'vitest'
 import { Booking } from '../../../src/academie/module-2'
@@ -40,10 +40,10 @@ function requested() {
   return Booking.request({
     guestId,
     listingId,
-    checkIn: '2026-03-01',
-    checkOut: '2026-03-04',
-    totalCents: 42000,
-    currency: 'CAD',
+    checkIn: '2030-03-01',
+    checkOut: '2030-03-04',
+    total: 42000,
+    currency: 'MGA',
   })
 }
 
@@ -83,7 +83,7 @@ describe('cycle de vie d’une réservation', () => {
   })
 
   // Refuser est une réponse de l'hôte à une demande : une fois confirmée, la
-  // sortie s'appelle une annulation, et le module 10 lui applique une politique.
+  // sortie s'appelle une annulation, et le module 13 lui applique une politique.
   it('refuse de décliner une réservation déjà confirmée', () => {
     const booking = requested()
     booking.transitionTo('CONFIRMED' as never)
@@ -108,10 +108,10 @@ describe('intervalle du séjour', () => {
       Booking.request({
         guestId,
         listingId,
-        checkIn: '2026-03-04',
-        checkOut: '2026-03-01',
-        totalCents: 42000,
-        currency: 'CAD',
+        checkIn: '2030-03-04',
+        checkOut: '2030-03-01',
+        total: 42000,
+        currency: 'MGA',
       }),
     ).toThrow()
   })
@@ -121,10 +121,10 @@ describe('intervalle du séjour', () => {
       Booking.request({
         guestId,
         listingId,
-        checkIn: '2026-03-01',
-        checkOut: '2026-03-01',
-        totalCents: 42000,
-        currency: 'CAD',
+        checkIn: '2030-03-01',
+        checkOut: '2030-03-01',
+        total: 42000,
+        currency: 'MGA',
       }),
     ).toThrow()
   })
@@ -135,7 +135,7 @@ describe('montant de la réservation', () => {
   // sur un relevé bancaire, et un versement d'hôte faux.
   it('conserve le montant en entiers, jamais en virgule flottante', () => {
     const booking = requested()
-    expect(Number.isInteger(booking.totalCents)).toBe(true)
-    expect(booking.totalCents).toBe(42000)
+    expect(Number.isInteger(booking.total)).toBe(true)
+    expect(booking.total).toBe(42000)
   })
 })

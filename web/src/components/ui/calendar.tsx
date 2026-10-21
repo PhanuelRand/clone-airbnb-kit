@@ -1,4 +1,5 @@
 import * as React from "react"
+import { fr } from "date-fns/locale"
 import { cn } from "cn"
 import {
   DayPicker,
@@ -16,7 +17,8 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
-  locale,
+  // Le calendrier parle français par défaut : mois, jours, et lundi en premier.
+  locale = fr,
   formatters,
   components,
   ...props

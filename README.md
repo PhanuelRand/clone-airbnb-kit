@@ -1,82 +1,93 @@
-# Kit de départ — Clone Airbnb
+# Votre clone d'Airbnb
 
-Ce dossier contient le **harnais de vérification** du parcours « Clone Airbnb »
-(ADR-0016). Il est publié dans le dépôt modèle GitHub dont chaque participant
-part, et la plateforme compare son empreinte à chaque remise.
+Ce dépôt est le vôtre. Vous y construisez, module après module, une plateforme
+de location de logements : des hôtes publient, des voyageurs cherchent,
+réservent et paient. À la fin, l'application est en ligne et vous pouvez en
+donner l'adresse à quelqu'un.
 
-## Ce que vous trouvez dans votre dépôt
+Le cours de chaque module est sur le portail de l'Académie. Ce fichier vous
+sert à vous repérer dans le dépôt.
+
+## Par où commencer
+
+Suivez le module 1 sur le portail. En résumé :
+
+1. Installez les dépendances, à la racine du dépôt :
+
+   ```bash
+   npm install
+   ```
+
+2. Ouvrez `src/academie/module-1.ts` et remplacez le texte du gabarit par vos
+   réponses.
+3. Rédigez votre spécification dans `docs/specification.md`.
+4. Lancez la vérification du module 1 :
+
+   ```bash
+   npm run academie 1
+   ```
+
+5. Enregistrez votre travail et envoyez-le sur GitHub. La même vérification
+   tourne alors dans l'onglet **Actions** de votre dépôt.
+
+## Ce que contient votre dépôt
 
 | Chemin | Rôle |
 | --- | --- |
-| `academie/` | Le harnais de vérification. Ne le modifiez pas : son empreinte est comparée à chaque remise |
-| `src/` | Votre API, en Hono. Et `src/academie/` pour vos adaptateurs |
-| `web/` | Votre interface, en Vite et React, avec Tailwind et shadcn déjà configurés |
-| `docs/decisions/` | Les choix déjà faits pour ce projet, et un gabarit pour les vôtres |
-| `AGENTS.md` | Les règles que votre assistant IA doit suivre ici |
+| `src/` | Votre serveur (l'API), écrit avec Hono. Les routes vont dans `src/app.ts` |
+| `src/academie/` | Vos fichiers traducteurs, un par module : ils disent aux vérifications où trouver votre code |
+| `web/` | Votre interface, en React, avec des composants prêts à l'emploi |
+| `migrations/` | Vos fichiers SQL, qui créent les tables de votre base (à partir du module 2) |
+| `docs/` | Votre spécification, et les décisions de votre projet |
+| `academie/` | Les vérifications de l'Académie. **Ne les modifiez jamais** |
+| `AGENTS.md` | Les règles que doit suivre votre assistant IA dans ce dépôt |
 
-Deux installations, parce que ce sont deux applications :
+## Les commandes
 
-```bash
-npm install            # l'API et les vérifications
-npm run academie 1     # votre première vérification
+À lancer depuis la racine du dépôt.
 
-cd web && npm install  # l'interface
-npm run dev            # elle s'ouvre sur http://localhost:5173
-```
+| Commande | Ce qu'elle fait |
+| --- | --- |
+| `npm run academie N` | Lance les vérifications jusqu'au module N. Remplacez N par un numéro |
+| `npm run migrate` | Crée ou met à jour les tables de votre base (à partir du module 2) |
+| `npm run dev` | Démarre votre serveur sur http://localhost:3000 |
+| `npm run web:install` | Installe l'interface (une fois, à partir du module 3) |
+| `npm run dev:web` | Démarre votre interface sur http://localhost:5173 |
+| `npm test` | Lance vos propres tests, ceux de `src/` (module 14) |
+| `node --env-file=.env scripts/approuver-hote.mjs courriel` | Approuve un hôte, ou le refuse avec un motif en second argument (module 6) |
 
-Les vérifications n'ont pas besoin de l'interface : elles ne l'installent
-jamais, ce qui les garde rapides et vous épargne un téléchargement tant que
-vous n'en avez pas besoin.
+Le serveur et l'interface sont deux applications distinctes. Pour travailler sur
+les deux, ouvrez deux terminaux : `npm run dev` dans le premier,
+`npm run dev:web` dans le second.
 
-## Ce qui est versionné ici
+## Les réglages de votre machine
 
-| Chemin | Rôle |
-|---|---|
-| `.github/workflows/academie.yml` | Exécute les suites de conformité à chaque push, dans l'intégration continue du participant |
-| `academie/checks/**` | Les suites écrites par la plateforme, cumulatives d'un module au suivant |
-| `academie/run.mjs` | Lanceur local : `node academie/run.mjs 3` reproduit exactement ce que fait l'intégration continue |
+À partir du module 2, votre serveur a besoin de l'adresse de votre base. Copiez
+`.env.example` en `.env`, puis remplissez-le. Le fichier `.env` reste sur votre
+ordinateur : il n'est jamais envoyé sur GitHub.
 
-Ces fichiers sont les seuls dont l'empreinte est vérifiée. Le reste du dépôt
-modèle — `src/`, `tsconfig.json`, `academie/cours/`, `academie/rapports/` —
-n'est pas comparé.
+`DATABASE_URL_VERIFICATION` désigne une seconde base, où `npm run academie`
+crée ses comptes et ses annonces d'essai. Votre application, sur `DATABASE_URL`,
+reste ainsi propre.
 
-`academie/cours/` contient le cours de chaque module : c'est là que le parcours
-enseigne, quand la consigne du portail se contente de spécifier. Son plan et ses
-règles d'écriture sont dans [academie/cours/README.md](./academie/cours/README.md).
+## Quand une vérification échoue
 
-## Le contrat passe par un adaptateur
+Lisez le message : il dit ce qui manque, en français. Corrigez votre code, puis
+relancez `npm run academie N`.
 
-Contrairement au kit « Clone Uber », les suites de ce parcours n'importent
-jamais les fichiers du participant directement. Elles importent un adaptateur
-par module, `src/academie/module-N.ts`, que le participant écrit et qui
-réexporte son code sous les noms attendus.
+Ne modifiez jamais les fichiers de `academie/`. Votre travail serait peut-être
+juste, mais votre remise partirait en relecture par un mentor, ce qui la
+ralentit.
 
-Le participant garde donc la liberté de son architecture — noms de classes, de
-fichiers, de tables — tout en présentant au harnais une surface stable. C'est
-ce qui permet à la consigne de promettre « vous choisissez votre chemin » sans
-que les vérifications la contredisent.
+## Les modules 16 et 17
 
-Chaque contrat est écrit à deux endroits qui doivent rester d'accord :
-l'en-tête du fichier de check, et la section « Contrat de vérification » de la
-consigne publiée sur le portail.
+La messagerie et les avis sont réservés au palier Platine. Si vous ne l'avez pas
+choisi, leurs vérifications restent rouges dans l'onglet Actions : c'est normal,
+elles ne concernent que le palier Platine.
 
-## Pourquoi l'empreinte est vérifiée
+## Déploiement sur une seule adresse
 
-Le harnais vit dans le dépôt du participant, donc il peut le modifier. La
-plateforme relit ces fichiers au commit remis et compare leur empreinte à la
-version canonique publiée ici.
-
-Une différence ne prononce pas l'échec : elle confie la remise à un mentor, qui
-voit la modification dans l'historique Git et tranche. C'est le bon niveau pour
-un produit éducatif; ce n'est pas un système anti-fraude.
-
-## Faire évoluer le harnais
-
-1. modifier les fichiers ici;
-2. relever `kit.version` dans la bibliothèque de parcours
-   (`packages/core/src/modules/catalog/infrastructure/course-library.ts`);
-3. exécuter `pnpm catalog:sync`, qui recalcule les empreintes depuis ce dossier;
-4. publier le dépôt modèle GitHub à jour.
-
-Les participants déjà inscrits gardent la version du kit figée à leur
-inscription : réviser le harnais ne change pas ce qui leur a été demandé.
+Une fois en ligne (module 15), un seul service sert l'interface React compilée et
+l'API Hono, sur une seule adresse. `npm run build` construit l'interface,
+`npm start` applique les migrations puis démarre le serveur. Il peut aussi
+démarrer un PostgreSQL local. Voir [DEPLOIEMENT.md](./DEPLOIEMENT.md).

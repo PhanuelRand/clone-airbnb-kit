@@ -1,4 +1,4 @@
-# 0002 — Les montants sont des entiers
+# 0002 : Les montants sont des entiers
 
 - Date : 2026-09-22
 - Statut : Accepté, par l'Académie
@@ -13,10 +13,12 @@ bancaire.
 ## La décision
 
 **Un montant est un entier, exprimé dans la plus petite unité de la monnaie.**
-On stocke `2550` pour 25,50. La virgule n'apparaît qu'au moment de l'affichage.
+Pour l'ariary, qui n'a pas de centimes, c'est l'ariary lui-même : on stocke
+`120000` pour 120 000 Ar. Pour une monnaie à centimes, on stockerait `2550`
+pour 25,50, et la virgule n'apparaîtrait qu'à l'affichage.
 
-La colonne porte son unité dans son nom, par exemple `montant_total_cents`, et
-son type est `integer` ou `bigint`.
+Le type de la colonne est `integer` ou `bigint`, par exemple
+`montant_total integer not null`.
 
 ## Ce que ça coûte
 

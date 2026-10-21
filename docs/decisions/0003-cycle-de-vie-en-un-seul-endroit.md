@@ -1,4 +1,4 @@
-# 0003 — Un seul endroit décide des passages
+# 0003 : Un seul endroit décide des passages
 
 - Date : 2026-09-22
 - Statut : Accepté, par l'Académie

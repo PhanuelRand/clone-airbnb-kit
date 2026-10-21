@@ -1,4 +1,4 @@
-# 0004 — L'adaptateur est le seul contact avec les vérifications
+# 0004 : L'adaptateur est le seul contact avec les vérifications
 
 - Date : 2026-09-22
 - Statut : Accepté, par l'Académie
@@ -16,7 +16,8 @@ rempliriez la leur.
 réexporte, sous les noms que le harnais attend, ce que vous avez construit sous
 les noms que vous avez choisis.
 
-C'est le seul endroit du dépôt où des noms anglais sont imposés. Partout
+C'est l'un des rares endroits du dépôt où des noms anglais sont imposés
+(la liste complète est dans `AGENTS.md`). Partout
 ailleurs vous nommez en français.
 
 ## Ce que ça coûte

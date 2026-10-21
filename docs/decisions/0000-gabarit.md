@@ -1,4 +1,4 @@
-# 0000 — Le titre de votre décision
+# 0000 : Le titre de votre décision
 
 - Date : AAAA-MM-JJ
 - Statut : Accepté

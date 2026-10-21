@@ -1,4 +1,4 @@
-# 0001 — Un séjour se compte en nuits
+# 0001 : Un séjour se compte en nuits
 
 - Date : 2026-09-22
 - Statut : Accepté, par l'Académie
@@ -29,5 +29,6 @@ affiche des nuits et non des jours.
 
 **Compter les jours, arrivée et départ compris.** Cette façon rend impossible
 qu'un voyageur arrive le jour même où un autre repart : les deux séjours
-partageraient cette date et l'application croirait à un conflit. Le module 7,
-qui interdit la double réservation, devient alors faux ou injuste.
+partageraient cette date et l'application croirait à un conflit. Les modules 9
+et 12, qui interdisent la double réservation, deviennent alors faux ou
+injustes.

@@ -1,5 +1,5 @@
 /**
- * Module 4 — Authentification et vérification de l’hôte.
+ * Module 4 : Mots de passe et droits.
  *
  * Contrat attendu, exporté par `src/academie/module-4.ts` :
  *
@@ -26,7 +26,8 @@
  *
  * Un même compte peut porter les deux rôles : il réserve comme voyageur et
  * publie comme hôte. Chaque action se décide sur le rôle qu'elle demande, et
- * la vérification de l'hôte ne concerne que les actions d'hôte.
+ * la vérification de l'hôte ne bloque que la publication : un hôte en attente
+ * prépare et modifie son annonce (`EDIT_LISTING`).
  *
  * `authorize` est la décision d'autorisation de votre serveur, isolée pour être
  * testable. Vos routes doivent l'appeler : masquer un bouton dans l'interface
@@ -115,6 +116,16 @@ describe('autorisation côté serveur', () => {
       expect(decision.allowed, `un hôte ${verification} ne doit pas publier`).toBe(false)
       expect(decision.status).toBe(403)
     }
+  })
+
+  // Bloquer à la publication, pas avant : un hôte en attente prépare son annonce.
+  it('laisse un hôte en attente préparer une annonce, sans la publier', () => {
+    const decision = authorize({
+      roles: ['HOST'],
+      hostVerification: 'PENDING',
+      action: 'EDIT_LISTING',
+    })
+    expect(decision.allowed, 'un hôte en attente doit pouvoir préparer son annonce').toBe(true)
   })
 
   it('autorise la publication à un hôte approuvé', () => {
